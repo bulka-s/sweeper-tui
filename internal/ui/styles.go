@@ -14,8 +14,8 @@ var numberStyles = map[int]lipgloss.Style{
 }
 
 var (
-	mineStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
-	flagStyle = lipgloss.NewStyle().Background(lipgloss.Color("#d2e500"))
+	mineStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#d72e2e"))
+	flagStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
 )
 
 var boardBorderStyle = lipgloss.NewStyle().

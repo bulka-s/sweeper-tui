@@ -73,6 +73,19 @@ func (g *Game) SelectedCell() *Cell {
 	return &g.Board.Grid[g.curY][g.curX]
 }
 
+func (g *Game) CountFlags() int {
+	count := 0
+	
+	for y := 0; y < g.Board.Height; y++ {
+		for x := 0; x < g.Board.Width; x++ {
+			if g.Board.Grid[y][x].IsFlagged {
+				count++
+			}
+		}
+	}
+	return count
+}
+
 func (g *Game) GameOver() {
 	g.Board.OpenAllMines()
 	g.State = StateGameOver
