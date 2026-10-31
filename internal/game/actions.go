@@ -1,7 +1,5 @@
 package game
 
-import "log"
-
 func (g *Game) MoveUp() {
 	if g.curY > 0 {
 		g.curY--
@@ -131,8 +129,6 @@ func (g *Game) openNum(x, y int) {
 			}
 		}
 	}
-
-	log.Printf("chord at (%d,%d): %d flags, need %d", x, y, flagsCount, cell.NeighborMines)
 
 	if flagsCount != cell.NeighborMines {
 		return
