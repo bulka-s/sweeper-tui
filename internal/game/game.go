@@ -15,9 +15,9 @@ type Game struct {
 type GameState int
 
 const (
-	StatePlaing GameState = iota
+	StatePlaying GameState = iota
 	StateWon
-	StateLost
+	StateGameOver
 	NotStarted
 )
 
@@ -42,12 +42,12 @@ func NewGame(width, height, minesCount int) *Game {
 	}
 }
 
-func (g *Game) PlaceMines() {
+func (g *Game) PlaceMines(x, y int) {
 	positions := []point{}
 
 	for i := 0; i < g.Board.Height; i++ {
 		for j := 0; j < g.Board.Width; j++ {
-			if absInt(j-g.curX) <= 1 && absInt(i-g.curY) <= 1 {
+			if absInt(j-x) <= 1 && absInt(i-y) <= 1 {
 				continue
 			}
 			positions = append(positions, point{j, i})
@@ -75,5 +75,5 @@ func (g *Game) SelectedCell() *Cell {
 
 func (g *Game) GameOver() {
 	g.Board.OpenAllMines()
-	g.State = StateLost
+	g.State = StateGameOver
 }
