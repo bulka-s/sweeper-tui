@@ -19,5 +19,4 @@ var (
 )
 
 var boardBorderStyle = lipgloss.NewStyle().
-    Border(lipgloss.RoundedBorder()).
-    BorderForeground(lipgloss.Color("#b7b7b7")) 
+    Border(lipgloss.RoundedBorder())

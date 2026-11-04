@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"minesweeper/internal/game"
 	"strconv"
 	"strings"
 
@@ -46,7 +47,22 @@ func (m model) renderBoard() string {
 			b.WriteRune('\n')
 		}
 	}
-	return boardBorderStyle.Render(b.String())
+	return m.renderBorder(b.String())
+}
+
+func (m model) renderBorder(content string) string {
+	var borderStyle lipgloss.Style 
+
+	switch m.game.State{
+	case game.StateGameOver:
+		borderStyle = boardBorderStyle.BorderForeground(lipgloss.Color("#b50404"))
+	case game.StateWon:
+		borderStyle = boardBorderStyle.BorderForeground(lipgloss.Color("#04b527"))
+	default:
+		borderStyle = boardBorderStyle.BorderForeground(lipgloss.Color("#b7b7b7"))
+	}
+
+	return borderStyle.Render(content)
 }
 
 func (m model) renderTopBar() string {
