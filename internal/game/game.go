@@ -84,11 +84,12 @@ func (g *Game) CheckState() {
 
 	if g.SafeCellsRevealed == 0 {
 		g.State = StateWon
+		g.Board.setAllFlags()
 		return
 	}
 }
 
 func (g *Game) GameOver() {
-	g.Board.OpenAllMines()
+	g.Board.openAllMines()
 	g.State = StateGameOver
 }

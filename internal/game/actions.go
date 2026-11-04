@@ -26,7 +26,7 @@ func (g *Game) MoveRight() {
 
 func (g *Game) OpenCell() {
 
-	if g.State == StateGameOver {
+	if g.State == StateGameOver || g.State == StateWon {
 		return
 	}
 

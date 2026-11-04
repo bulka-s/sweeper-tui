@@ -14,11 +14,21 @@ type Board struct {
 	Grid [][]Cell
 }
 
-func (b Board) OpenAllMines() {
+func (b Board) openAllMines() {
 	for y := 0; y < b.Height; y++ {
 		for x := 0; x < b.Width; x++ {
 			if b.Grid[y][x].IsMine {
 				b.Grid[y][x].Open()
+			}
+		}
+	}
+}
+
+func (b Board) setAllFlags() {
+	for y := 0; y < b.Height; y++ {
+		for x := 0; x < b.Width; x++ {
+			if b.Grid[y][x].IsMine {
+				b.Grid[y][x].IsFlagged = true
 			}
 		}
 	}
