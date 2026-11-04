@@ -30,12 +30,6 @@ func (c *Cell) Open() {
 	}
 }
 
-func (c *Cell) ToggleFlag() {
-	if !c.IsRevealed {
-		c.IsFlagged = !c.IsFlagged
-	}
-}
-
 func (b *Board) setNeighborsCount() {
 	for y := 0; y < b.Height; y++ {
 		for x := 0; x < b.Width; x++ {

@@ -3,8 +3,6 @@ package ui
 import (
 	"fmt"
 	"minesweeper/internal/game"
-	"strconv"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -16,7 +14,7 @@ type model struct {
 	game   *game.Game
 	width  int
 	height int
-	help help.Model
+	help   help.Model
 }
 
 func NewModel(g *game.Game) *model {
@@ -61,7 +59,7 @@ func (m *model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.game.OpenCell()
 	case key.Matches(msg, Keys.FlagCell):
 		if m.game.State == game.StatePlaying {
-			m.game.SelectedCell().ToggleFlag()
+			m.game.FlagSetter()
 		}
 	}
 
@@ -69,52 +67,14 @@ func (m *model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *model) View() string {
-	minesLeft := m.game.MinesCount - m.game.CountFlags()
 
-	topBar := fmt.Sprintf("Mines: %d/%d | Pos: [%d, %d]", minesLeft, m.game.MinesCount, m.game.CursorX(), m.game.CursorY())
-
-	var b strings.Builder
-	for y, row := range m.game.Board.Grid {
-		for x, c := range row {
-			var style lipgloss.Style
-			var text string
-
-			switch {
-			case c.IsMine && c.IsRevealed:
-				style = mineStyle
-				text = "@"
-			case c.IsFlagged && !c.IsRevealed:
-				style = flagStyle
-				text = "⚑"
-			case c.IsRevealed && c.NeighborMines > 0:
-				style = numberStyles[c.NeighborMines]
-				text = strconv.Itoa(c.NeighborMines)
-			case c.IsRevealed:
-				style = lipgloss.NewStyle()
-				text = " "
-			default:
-				style = lipgloss.NewStyle()
-				text = "."
-			}
-
-			selected := x == m.game.CursorX() && y == m.game.CursorY()
-			if selected {
-				style = style.Reverse(true)
-			}
-
-			b.WriteString(style.Render(text))
-			b.WriteRune(' ')
-			m.game.CursorX()
-		}
-		if y < m.game.Board.Height-1 {
-			b.WriteRune('\n')
-		}
-	}
-	boardWithBorder := boardBorderStyle.Render(b.String())
-
+	topBar := m.renderTopBar()
+	board := m.renderBoard()
 	helpStr := m.help.View(Keys)
 
-	content := lipgloss.JoinVertical(lipgloss.Center, topBar, boardWithBorder, helpStr)
+	content := lipgloss.JoinVertical(lipgloss.Center, topBar, board, helpStr)
+
+	content = lipgloss.JoinHorizontal(lipgloss.Top, content, fmt.Sprintf("\nFlags: %d\nSCR: %d", m.game.FlagsPlaced, m.game.SafeCellsRevealed))
 
 	if m.width == 0 || m.height == 0 {
 		return content

@@ -5,11 +5,13 @@ import (
 )
 
 type Game struct {
-	Board      Board
-	MinesCount int
-	curX       int
-	curY       int
-	State      GameState
+	Board             Board
+	MinesCount        int
+	curX              int
+	curY              int
+	State             GameState
+	FlagsPlaced       int
+	SafeCellsRevealed int
 }
 
 type GameState int
@@ -36,6 +38,8 @@ func NewGame(width, height, minesCount int) *Game {
 			Grid:   grid,
 		},
 		MinesCount: minesCount,
+		FlagsPlaced: 0,
+		SafeCellsRevealed: width * height - minesCount,
 		curX:       width / 2,
 		curY:       height / 2,
 		State:      NotStarted,
@@ -73,17 +77,15 @@ func (g *Game) SelectedCell() *Cell {
 	return &g.Board.Grid[g.curY][g.curX]
 }
 
-func (g *Game) CountFlags() int {
-	count := 0
-	
-	for y := 0; y < g.Board.Height; y++ {
-		for x := 0; x < g.Board.Width; x++ {
-			if g.Board.Grid[y][x].IsFlagged {
-				count++
-			}
-		}
+func (g *Game) CheckState() {
+	if g.State == StateWon || g.State == StateGameOver {
+		return
 	}
-	return count
+
+	if g.SafeCellsRevealed == 0 {
+		g.State = StateWon
+		return
+	}
 }
 
 func (g *Game) GameOver() {
