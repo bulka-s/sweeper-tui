@@ -26,7 +26,7 @@ func (g *Game) MoveRight() {
 
 func (g *Game) OpenCell() {
 
-	if g.State == StateGameOver {
+	if g.State == StateGameOver || g.State == StateWon {
 		return
 	}
 
@@ -71,6 +71,7 @@ func (g *Game) revealOne(x, y int) {
 		return
 	}
 	cell.IsRevealed = true
+	g.SafeCellsRevealed--
 }
 
 func (g *Game) openAround(x, y int) {
@@ -89,6 +90,7 @@ func (g *Game) openAround(x, y int) {
 	}
 
 	cell.IsRevealed = true
+	g.SafeCellsRevealed--
 
 	if cell.NeighborMines != 0 {
 		return
@@ -143,6 +145,26 @@ func (g *Game) openNum(x, y int) {
 		}
 	}
 
+}
+
+func (g *Game) FlagSetter() {
+	cell := g.SelectedCell()
+
+	if cell.IsRevealed {
+		return
+	}
+
+	if cell.IsFlagged {
+		g.FlagsPlaced--
+		cell.IsFlagged = false
+		return
+	}
+
+	if !cell.IsFlagged && g.FlagsPlaced < g.MinesCount {
+		g.FlagsPlaced++
+		cell.IsFlagged = true
+		return
+	}
 }
 
 // это для того что нелья было менять поля x y из вне (геттеры)

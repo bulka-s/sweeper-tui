@@ -14,7 +14,7 @@ type Board struct {
 	Grid [][]Cell
 }
 
-func (b Board) OpenAllMines() {
+func (b Board) openAllMines() {
 	for y := 0; y < b.Height; y++ {
 		for x := 0; x < b.Width; x++ {
 			if b.Grid[y][x].IsMine {
@@ -24,15 +24,19 @@ func (b Board) OpenAllMines() {
 	}
 }
 
-func (c *Cell) Open() {
-	if !c.IsRevealed {
-		c.IsRevealed = true
+func (b Board) setAllFlags() {
+	for y := 0; y < b.Height; y++ {
+		for x := 0; x < b.Width; x++ {
+			if b.Grid[y][x].IsMine {
+				b.Grid[y][x].IsFlagged = true
+			}
+		}
 	}
 }
 
-func (c *Cell) ToggleFlag() {
+func (c *Cell) Open() {
 	if !c.IsRevealed {
-		c.IsFlagged = !c.IsFlagged
+		c.IsRevealed = true
 	}
 }
 

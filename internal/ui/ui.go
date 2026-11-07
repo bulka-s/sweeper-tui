@@ -2,9 +2,9 @@ package ui
 
 import (
 	"minesweeper/internal/game"
-	"strconv"
-	"strings"
+	"time"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -14,10 +14,19 @@ type model struct {
 	game   *game.Game
 	width  int
 	height int
+	help   help.Model
+
+	seconds      int
+	timerRunning bool
 }
 
+type tickMsg time.Time
+
 func NewModel(g *game.Game) *model {
-	return &model{game: g}
+	return &model{
+		game: g,
+		help: help.New(),
+	}
 }
 
 func (m *model) Init() tea.Cmd {
@@ -32,78 +41,81 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case tea.KeyMsg:
 		return m.handleKey(msg)
+	case tickMsg:
+		if m.timerRunning {
+			m.seconds++
+			return m, tick()
+		}
 	}
 	return m, nil
 }
 
 func (m *model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch {
-	case key.Matches(msg, keys.Quit):
+	case msg.String() == "?":
+		m.help.ShowAll = !m.help.ShowAll
+
+	case key.Matches(msg, Keys.Quit):
 		return m, tea.Quit
-	case key.Matches(msg, keys.Up):
+	case key.Matches(msg, Keys.Up):
 		m.game.MoveUp()
-	case key.Matches(msg, keys.Down):
+	case key.Matches(msg, Keys.Down):
 		m.game.MoveDown()
-	case key.Matches(msg, keys.Left):
+	case key.Matches(msg, Keys.Left):
 		m.game.MoveLeft()
-	case key.Matches(msg, keys.Right):
+	case key.Matches(msg, Keys.Right):
 		m.game.MoveRight()
-	case key.Matches(msg, keys.OpenCell):
+	case key.Matches(msg, Keys.OpenCell):
+		wasNotStarted := m.game.State == game.NotStarted
+
 		m.game.OpenCell()
-	case key.Matches(msg, keys.FlagCell):
-		m.game.SelectedCell().ToggleFlag()
+
+		m.game.CheckState()
+
+		if wasNotStarted && m.game.State == game.StatePlaying {
+			m.timerRunning = true
+			return m, tick()
+		}
+
+		if m.game.State == game.StateWon || m.game.State == game.StateGameOver {
+			m.timerRunning = false
+		}
+
+	case key.Matches(msg, Keys.FlagCell):
+		if m.game.State == game.StatePlaying {
+			m.game.FlagSetter()
+		}
+	case key.Matches(msg, Keys.RestartGame):
+		m.game = game.NewGame(m.game.Board.Width, m.game.Board.Height, m.game.MinesCount)
+		m.seconds = 0
+		m.timerRunning = false
 	}
 
 	return m, nil
 }
 
+func tick() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
+}
+
 func (m *model) View() string {
-	var b strings.Builder
-	for y, row := range m.game.Board.Grid {
-		for x, c := range row {
-			var style lipgloss.Style
-			var text string
 
-			switch {
-			case c.IsMine && c.IsRevealed:
-				style = mineStyle
-				text = "X"
-			case c.IsFlagged && !c.IsRevealed:
-				style = flagStyle
-				text = " "
-			case c.IsRevealed && c.NeighborMines > 0:
-				style = numberStyles[c.NeighborMines]
-				text = strconv.Itoa(c.NeighborMines)
-			case c.IsRevealed:
-				style = lipgloss.NewStyle()
-				text = " "
-			default:
-				style = lipgloss.NewStyle()
-				text = "."
-			}
+	topBar := m.renderTopBar()
+	board := m.renderBoard()
+	helpStr := m.help.View(Keys)
 
-			selected := x == m.game.CursorX() && y == m.game.CursorY()
-			if selected {
-				style = style.Reverse(true)
-			}
-
-			b.WriteString(style.Render(text))
-			b.WriteRune(' ')
-			m.game.CursorX()
-		}
-		if y < m.game.Board.Height-1 {
-			b.WriteRune('\n')
-		}
-	}
-	boardWithBorder := boardBorderStyle.Render(b.String())
+	content := lipgloss.JoinVertical(lipgloss.Center, topBar, board, helpStr)
 
 	if m.width == 0 || m.height == 0 {
-		return boardWithBorder
+		return content
 	}
 
 	return lipgloss.Place(
 		m.width, m.height,
 		lipgloss.Center, lipgloss.Center,
-		boardWithBorder,
+		content,
 	)
 }
+
