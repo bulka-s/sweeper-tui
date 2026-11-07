@@ -152,6 +152,10 @@ func (g *Game) openNum(x, y int) {
 func (g *Game) FlagSetter() {
 	cell := g.SelectedCell()
 
+	if cell.IsRevealed {
+		return
+	}
+
 	if cell.IsFlagged {
 		g.FlagsPlaced--
 		cell.IsFlagged = false
