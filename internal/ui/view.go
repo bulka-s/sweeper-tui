@@ -19,7 +19,7 @@ func (m model) renderBoard() string {
 			switch {
 			case c.IsMine && c.IsRevealed:
 				style = mineStyle
-				text = "@"
+				text = "X"
 			case c.IsFlagged && !c.IsRevealed:
 				style = flagStyle
 				text = "⚑"
