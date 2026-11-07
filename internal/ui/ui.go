@@ -105,10 +105,8 @@ func (m *model) View() string {
 	topBar := m.renderTopBar()
 	board := m.renderBoard()
 	helpStr := m.help.View(Keys)
-	dbg := m.renderDebug()
 
 	content := lipgloss.JoinVertical(lipgloss.Center, topBar, board, helpStr)
-	content = lipgloss.JoinHorizontal(lipgloss.Center, content, dbg)
 
 	if m.width == 0 || m.height == 0 {
 		return content
