@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"minesweeper/internal/game"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -73,8 +72,6 @@ func (m *model) View() string {
 	helpStr := m.help.View(Keys)
 
 	content := lipgloss.JoinVertical(lipgloss.Center, topBar, board, helpStr)
-
-	content = lipgloss.JoinHorizontal(lipgloss.Top, content, fmt.Sprintf("\nFlags: %d\nSCR: %d", m.game.FlagsPlaced, m.game.SafeCellsRevealed))
 
 	if m.width == 0 || m.height == 0 {
 		return content
