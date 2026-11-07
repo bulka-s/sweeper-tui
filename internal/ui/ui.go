@@ -60,6 +60,8 @@ func (m *model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.game.State == game.StatePlaying {
 			m.game.FlagSetter()
 		}
+	case key.Matches(msg, Keys.RestartGame):
+		m.game = game.NewGame(m.game.Board.Width, m.game.Board.Height, m.game.MinesCount)
 	}
 
 	return m, nil
