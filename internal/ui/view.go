@@ -67,6 +67,10 @@ func (m model) renderBorder(content string) string {
 
 func (m model) renderTopBar() string {
 	minesLeft := m.game.MinesCount - m.game.FlagsPlaced
-	topBar := fmt.Sprintf("Mines: %d/%d | Pos: [%d, %d]", minesLeft, m.game.MinesCount, m.game.CursorX(), m.game.CursorY())
+	topBar := fmt.Sprintf("Mines: %d/%d | Pos: [%d, %d] | TimeL: %d", minesLeft, m.game.MinesCount, m.game.CursorX(), m.game.CursorY(), m.seconds)
 	return topBar
+}
+
+func (m model) renderDebug() string {
+	return fmt.Sprintf("SCL: %d", m.game.SafeCellsRevealed)
 }

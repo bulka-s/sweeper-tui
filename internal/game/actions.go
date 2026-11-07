@@ -56,8 +56,6 @@ func (g *Game) OpenCell() {
 	} else {
 		g.revealOne(g.curX, g.curY)
 	}
-
-	g.CheckState()
 }
 
 func (g *Game) revealOne(x, y int) {
